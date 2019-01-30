@@ -1,0 +1,63 @@
+<AppRoot>:
+    SplitterGrid:
+        size: root.size
+        size_hint: 1, 1
+
+        rows: 1
+
+        SplitterGrid:
+            cols: 1
+            TabbedPanel:
+                do_default_tab: False
+                TabbedPanelItem:
+                    text: 'capture'
+
+                    Button:
+                        text: 'test'
+
+                TabbedPanelItem:
+                    text: 'log'
+
+                    TextInput:
+                        text: 'test'
+                        readonly: True
+
+                TabbedPanelItem:
+                    text: 'editor'
+
+                    TextInput:
+                        text: 'test'
+
+                TabbedPanelItem:
+                    text: 'app state'
+
+                    TextInput:
+                        text: '{}'
+                        readonly: True
+
+            TextInput:
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            TextInput:
+                multiline: False
+                size_hint_y: None
+                height: self.minimum_height
+
+            TabbedPanel:
+                do_default_tab: False
+                TabbedPanelItem:
+                    text: 'widget tree'
+                    SplitterGrid:
+                        cols: 1
+                        Button:
+                            text: 'test'
+
+                        Button:
+                            text: 'test'
+
+                TabbedPanelItem:
+                    text: 'file tree'
+                    Button
+
