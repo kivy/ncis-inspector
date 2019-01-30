@@ -40,13 +40,25 @@
         BoxLayout:
             orientation: 'vertical'
 
-            TextInput:
-                multiline: False
+            BoxLayout:
                 size_hint_y: None
                 height: self.minimum_height
+                TextInput:
+                    multiline: False
+                    size_hint_y: None
+                    height: self.minimum_height
+                    on_text_validate: app.target_ip = self.text
+
+                TextInput:
+                    multiline: False
+                    size_hint_y: None
+                    height: self.minimum_height
+                    on_text_validate: app.target_port = int(self.text)
 
             TabbedPanel:
                 do_default_tab: False
+                PythonInfoPanel:
+
                 TabbedPanelItem:
                     text: 'widget tree'
                     SplitterGrid:
@@ -60,4 +72,3 @@
                 TabbedPanelItem:
                     text: 'file tree'
                     Button
-
