@@ -61,7 +61,6 @@ class PythonObjectRepr(object):
             for index, entry in enumerate(o):
                 is_last = index == len(o) - 1
                 lines = list(self._render_full(entry))
-                print("-- entry")
                 for indexline, line in enumerate(lines):
                     is_last_indexline = indexline == len(lines) - 1
                     comma = "," if (is_last_indexline and not is_last) else ""

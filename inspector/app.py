@@ -6,8 +6,19 @@ from kivy.clock import Clock
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
-#:set ins_color_topbar "#03A9F4"
-#:set ins_color_leftbar "#01579B"
+#:set NCIS_COLOR_TOPBAR "#03A9F4"
+#:set NCIS_COLOR_LEFTBAR "#01579B"
+
+#:set NCIS_ICON_CANCEL "\uE800"
+#:set NCIS_ICON_SPINNER "\uE830"
+#:set NCIS_ICON_UNHAPPY "\uE802"
+
+<InspectorIconLabel@Label>:
+    font_name: "inspector/data/ncis.ttf"
+
+<InspectorIconButton@Button>:
+    font_name: "inspector/data/ncis.ttf"
+
 <InspectorConnection@AnchorLayout>:
     disabled: ins.is_connecting
     GridLayout:
@@ -75,7 +86,7 @@ Builder.load_string("""
         spacing: dp(4)
         canvas.before:
             Color:
-                rgba: rgba(ins_color_topbar)
+                rgba: rgba(NCIS_COLOR_TOPBAR)
             Rectangle:
                 pos: self.pos
                 size: self.size
@@ -84,8 +95,8 @@ Builder.load_string("""
             width: self.height
         Label:
             text: "NCIS Inspector"
-        Button:
-            text: "X"
+        InspectorIconButton:
+            text: NCIS_ICON_CANCEL
             on_release: ins.disconnect()
             size_hint_x: None
             width: self.height
@@ -99,7 +110,7 @@ Builder.load_string("""
             width: dp(44)
             canvas.before:
                 Color:
-                    rgba: rgba(ins_color_leftbar)
+                    rgba: rgba(NCIS_COLOR_LEFTBAR)
                 Rectangle:
                     pos: self.pos
                     size: self.size

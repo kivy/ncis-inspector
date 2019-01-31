@@ -11,16 +11,16 @@ Builder.load_string("""
         do_default_tab: False
         id: tp
         TabbedPanelItem:
-            id: tph_modules
-            text: 'Modules'
-            PythonModulesPanel:
-                on_module_selected: root.inspect_module(args[1])
-
-        TabbedPanelItem:
             text: 'Eval'
             id: tph_eval
             PythonEvalPanel:
                 id: python_eval_module
+
+        TabbedPanelItem:
+            id: tph_modules
+            text: 'Modules'
+            PythonModulesPanel:
+                on_module_selected: root.inspect_module(args[1])
 
 """)
 
