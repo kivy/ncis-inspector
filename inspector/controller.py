@@ -82,13 +82,13 @@ class InspectorController(EventDispatcher):
             callback("error", error)
 
         url = 'http://{host}:{port}{path}{args}'.format(
-            host=self.target_ip,
+            host=self.target_host,
             port=self.target_port,
             path=path,
-            args=urlencode(**kwargs) if kwargs else ''
+            args=('?' + urlencode(kwargs)) if kwargs else ''
         )
         UrlRequest(
-           url,
+            url,
             on_success=handle_success,
             on_failure=handle_failure,
             on_error=handle_error,
