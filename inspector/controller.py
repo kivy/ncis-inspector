@@ -59,6 +59,11 @@ class InspectorController(EventDispatcher):
             ctl = cls._instance
         return cls._instance
 
+    def __init__(self, **kwargs):
+        super(InspectorController, self).__init__(**kwargs)
+        if self.target_host and self.target_port:
+            self.connect()
+
     def request(self, path, callback=None, **kwargs):
         if not self.is_connected and not kwargs.get("force"):
             return False

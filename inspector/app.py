@@ -123,11 +123,13 @@ class InspectorViews(F.GridLayout):
 
     def discover_views(self, *largs):
         # TODO make it dynamic
+        from inspector.views.view_python import PythonInspectorView
         from inspector.views.view_kivy import KivyInspectorView
         self.views_cls = {
+            PythonInspectorView: None,
             KivyInspectorView: None
         }
-        self.show_view(KivyInspectorView)
+        self.show_view(PythonInspectorView)
 
     def show_view(self, cls):
         instance = self.views_cls.get(cls)
