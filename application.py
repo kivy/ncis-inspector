@@ -1,8 +1,9 @@
 from kivy.factory import Factory as F
 from kivy.properties import StringProperty, NumericProperty
 from kivy.network.urlrequest import UrlRequest
-
+from kivy.event import EventDispatcher
 from kaki.app import App
+from kivy.lang import global_idmap
 
 from os import listdir
 from os.path import splitext
@@ -23,23 +24,13 @@ def discover_classes():
             yield modname, modname
 
 
-class AppRoot(F.FloatLayout):
-    pass
+class DebuggerController(EventDispatcher):
 
-
-class Application(App):
-    CLASSES = dict(discover_classes())
-
-    AUTORELOADER_PATHS = [
-        ('.', {'recursive': True}),
-    ]
-
-    target_ip = StringProperty()
-    target_port = NumericProperty()
-
-    def build_app(self):
-        return F.AppRoot()
-
+    @classmethod
+    def instance(cls):
+        if not hasattr(self, "_instance"):
+            self._instance = DebuggerController()
+        return self._instance
 
     def request(self, path, callback=None, **kwargs):
         if not (self.target_ip and self.target_port):
@@ -67,6 +58,30 @@ class Application(App):
             on_error=handle_error,
         )
         return True
+
+
+class DebuggerApplicationRoot(F.FloatLayout):
+    def __init__(self, **kwargs):
+        global app
+        app = self
+        self.ctl = DebuggerController.instance()
+        global_idmap["dbg"] = self.ctl
+
+
+
+class Application(App):
+    CLASSES = dict(discover_classes())
+
+    AUTORELOADER_PATHS = [
+        ('.', {'recursive': True}),
+    ]
+
+    target_ip = StringProperty()
+    target_port = NumericProperty()
+
+    def build_app(self):
+        return F.AppRoot()
+
 
 if __name__ == '__main__':
     Application().run()
