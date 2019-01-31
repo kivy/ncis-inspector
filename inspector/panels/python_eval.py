@@ -39,11 +39,11 @@ class PythonEvalPanel(F.RelativeLayout):
     def refresh(self, *largs):
         def callback(status, response):
             self.obj = response
-            print("self", self, self.obj)
 
         ctl.request(
             '/python/eval',
             callback,
+            params={"cmd": self.cmd},
             method="POST")
 
     def on_cmd(self, *largs):
