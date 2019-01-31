@@ -39,8 +39,6 @@ Builder.load_string('''
 class PythonModulesPanel(F.RelativeLayout):
     __events__ = ["on_module_selected"]
 
-    info = StringProperty()
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.refresh()

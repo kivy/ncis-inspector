@@ -64,8 +64,8 @@ class InspectorController(EventDispatcher):
         if self.target_host and self.target_port:
             self.connect()
 
-    def request(self, path, callback=None, **kwargs):
-        if not self.is_connected and not kwargs.get("force"):
+    def request(self, path, callback=None, force=False, **kwargs):
+        if not self.is_connected and not force:
             return False
 
         def handle_success(request, response):
