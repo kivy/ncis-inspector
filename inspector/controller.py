@@ -64,7 +64,10 @@ class InspectorController(EventDispatcher):
         if self.target_host and self.target_port:
             self.connect()
 
-    def request(self, path, callback=None, force=False, method='GET', **kwargs):
+    def request(
+        self, path, callback=None, force=False, method='GET',
+        params=None
+    ):
         if not self.is_connected and not force:
             return False
 
@@ -86,7 +89,7 @@ class InspectorController(EventDispatcher):
                 host=self.target_host,
                 port=self.target_port,
                 path=path,
-                args=('?' + urlencode(kwargs)) if kwargs else ''
+                args=('?' + urlencode(params)) if params else ''
             )
             UrlRequest(
                 url,
@@ -105,7 +108,7 @@ class InspectorController(EventDispatcher):
                 on_success=handle_success,
                 on_failure=handle_failure,
                 on_error=handle_error,
-                req_body=urlencode(kwargs),
+                req_body=urlencode(params or {}),
             )
         else:
             raise ValueError(
