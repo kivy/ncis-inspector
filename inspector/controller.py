@@ -81,10 +81,11 @@ class InspectorController(EventDispatcher):
         def handle_error(request, error):
             callback("error", error)
 
-        url = 'http://{host}:{port}{path}'.format(
-            host=self.target_host,
+        url = 'http://{host}:{port}{path}{args}'.format(
+            host=self.target_ip,
             port=self.target_port,
             path=path,
+            args=urlencode(**kwargs) if kwargs else ''
         )
         UrlRequest(
            url,
