@@ -200,6 +200,8 @@ class SplitterGrid(Layout):
 
         for rr in self.row_ratios:
             x = self.x
+            if not self.col_ratios:
+                continue
             for cr in self.col_ratios:
                 w = children[i]
                 i += 1

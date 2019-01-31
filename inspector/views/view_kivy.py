@@ -1,4 +1,10 @@
-<AppRoot>:
+from kivy.factory import Factory as F
+from kivy.lang import Builder
+
+Builder.load_string("""
+#:import _ inspector.widgets.splitterlayout
+#:import _ inspector.widgets.python_panel
+<KivyInspectorView>:
     SplitterGrid:
         size: root.size
         size_hint: 1, 1
@@ -72,3 +78,8 @@
                 TabbedPanelItem:
                     text: 'file tree'
                     Button
+""")
+
+
+class KivyInspectorView(F.RelativeLayout):
+    pass
