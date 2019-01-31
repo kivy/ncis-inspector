@@ -64,7 +64,7 @@ class InspectorController(EventDispatcher):
         if self.target_host and self.target_port:
             self.connect()
 
-    def request(self, path, callback=None, force=False, **kwargs):
+    def request(self, path, callback=None, force=False, method='GET', **kwargs):
         if not self.is_connected and not force:
             return False
 
@@ -81,18 +81,37 @@ class InspectorController(EventDispatcher):
         def handle_error(request, error):
             callback("error", error)
 
-        url = 'http://{host}:{port}{path}{args}'.format(
-            host=self.target_host,
-            port=self.target_port,
-            path=path,
-            args=('?' + urlencode(kwargs)) if kwargs else ''
-        )
-        UrlRequest(
-            url,
-            on_success=handle_success,
-            on_failure=handle_failure,
-            on_error=handle_error,
-        )
+        if method == 'GET':
+            url = 'http://{host}:{port}{path}{args}'.format(
+                host=self.target_host,
+                port=self.target_port,
+                path=path,
+                args=('?' + urlencode(kwargs)) if kwargs else ''
+            )
+            UrlRequest(
+                url,
+                on_success=handle_success,
+                on_failure=handle_failure,
+                on_error=handle_error,
+            )
+        elif method == 'POST':
+            url = 'http://{host}:{port}{path}'.format(
+                host=self.target_host,
+                port=self.target_port,
+                path=path,
+            )
+            UrlRequest(
+                url,
+                on_success=handle_success,
+                on_failure=handle_failure,
+                on_error=handle_error,
+                req_body=urlencode(kwargs),
+            )
+        else:
+            raise ValueError(
+                "method must be one of ['GET', 'POST'] got '{}' instead"
+                .format(method)
+            )
         return True
 
     def connect(self):

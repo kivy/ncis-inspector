@@ -17,7 +17,7 @@ Builder.load_string('''
         TextInput:
             multiline: False
             text: root.cmd
-            on_text: root.cmd = self.text
+            on_text_validate: root.cmd = self.text
             size_hint_y: None
             height: dp(44)
             font_size: dp(16)
