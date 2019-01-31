@@ -60,7 +60,7 @@ class InspectorController(EventDispatcher):
         return cls._instance
 
     def request(self, path, callback=None, **kwargs):
-        if not self.is_connected:
+        if not self.is_connected and not kwargs.get("force"):
             return False
 
         def handle_success(request, response):
@@ -94,7 +94,6 @@ class InspectorController(EventDispatcher):
         self.error = ""
 
         def callback(status, resp):
-            print("callback", status, resp)
             self.is_connecting = False
             if status == "ok":
                 self.is_connected = True
@@ -102,7 +101,7 @@ class InspectorController(EventDispatcher):
                 self.is_connected = False
                 self.error = repr(resp)
 
-        self.request("/_/version", callback)
+        self.request("/_/version", callback, force=True)
 
     def disconnect(self):
         self.is_connected = False
