@@ -3,6 +3,7 @@ from inspector.widgets.switchcontainer import SwitchContainer
 from kivy.factory import Factory as F
 from kivy.lang import global_idmap, Builder
 from kivy.clock import Clock
+from kivy.properties import DictProperty
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
@@ -97,6 +98,12 @@ Builder.load_string("""
             text: "NCIS Inspector"
         InspectorIconButton:
             text: NCIS_ICON_CANCEL
+        Spinner:
+            classes: {x.__name__: x for x in root.views_cls}
+            values: (self.classes).keys()
+            on_text: root.show_view(self.classes[self.text])
+        Button:
+            text: "X"
             on_release: ins.disconnect()
             size_hint_x: None
             width: self.height
@@ -127,9 +134,10 @@ Builder.load_string("""
 
 
 class InspectorViews(F.GridLayout):
+    views_cls = DictProperty()
+
     def __init__(self, **kwargs):
         super(InspectorViews, self).__init__(**kwargs)
-        self.views_cls = None
         Clock.schedule_once(self.discover_views)
 
     def discover_views(self, *largs):

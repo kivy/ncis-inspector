@@ -4,6 +4,7 @@ from kivy.lang import Builder
 Builder.load_string("""
 #:import _ inspector.widgets.splitterlayout
 #:import _ inspector.panels.python_info
+#:import _ inspector.panels.kivy_tree
 <KivyInspectorView>:
     SplitterGrid:
         size: root.size
@@ -46,16 +47,7 @@ Builder.load_string("""
         TabbedPanel:
             do_default_tab: False
             PythonInfoPanel:
-
-            TabbedPanelItem:
-                text: 'widget tree'
-                SplitterGrid:
-                    cols: 1
-                    Button:
-                        text: 'test'
-
-                    Button:
-                        text: 'test'
+            KivyTreePanel:
 
             TabbedPanelItem:
                 text: 'file tree'
