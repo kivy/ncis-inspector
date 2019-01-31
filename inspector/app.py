@@ -79,6 +79,9 @@ Builder.load_string("""
             Rectangle:
                 pos: self.pos
                 size: self.size
+        Widget:
+            size_hint_x: None
+            width: self.height
         Label:
             text: "NCIS Inspector"
         Button:

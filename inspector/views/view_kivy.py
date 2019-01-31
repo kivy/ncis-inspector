@@ -3,7 +3,7 @@ from kivy.lang import Builder
 
 Builder.load_string("""
 #:import _ inspector.widgets.splitterlayout
-#:import _ inspector.widgets.python_panel
+#:import _ inspector.panels.python_info
 <KivyInspectorView>:
     SplitterGrid:
         size: root.size
@@ -43,41 +43,23 @@ Builder.load_string("""
 
             TextInput:
 
-        BoxLayout:
-            orientation: 'vertical'
+        TabbedPanel:
+            do_default_tab: False
+            PythonInfoPanel:
 
-            BoxLayout:
-                size_hint_y: None
-                height: self.minimum_height
-                TextInput:
-                    multiline: False
-                    size_hint_y: None
-                    height: self.minimum_height
-                    on_text_validate: app.target_ip = self.text
+            TabbedPanelItem:
+                text: 'widget tree'
+                SplitterGrid:
+                    cols: 1
+                    Button:
+                        text: 'test'
 
-                TextInput:
-                    multiline: False
-                    size_hint_y: None
-                    height: self.minimum_height
-                    on_text_validate: app.target_port = int(self.text)
+                    Button:
+                        text: 'test'
 
-            TabbedPanel:
-                do_default_tab: False
-                PythonInfoPanel:
-
-                TabbedPanelItem:
-                    text: 'widget tree'
-                    SplitterGrid:
-                        cols: 1
-                        Button:
-                            text: 'test'
-
-                        Button:
-                            text: 'test'
-
-                TabbedPanelItem:
-                    text: 'file tree'
-                    Button
+            TabbedPanelItem:
+                text: 'file tree'
+                Button
 """)
 
 
