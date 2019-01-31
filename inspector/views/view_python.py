@@ -25,6 +25,7 @@ Builder.load_string("""
 """)
 
 class PythonInspectorView(F.RelativeLayout):
+    ICON = "python.png"
     def inspect_module(self, module):
         self.ids.python_eval_module.cmd = "sys.modules['%s']" % module
         self.ids.tp.switch_to(self.ids.tph_eval)

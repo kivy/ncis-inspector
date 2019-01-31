@@ -1,5 +1,5 @@
 from kivy.properties import (
-    StringProperty, NumericProperty, BooleanProperty)
+    StringProperty, NumericProperty, BooleanProperty, ObjectProperty)
 from kivy.network.urlrequest import UrlRequest
 from kivy.event import EventDispatcher
 from kivy.lang import global_idmap
@@ -47,6 +47,7 @@ def discover_classes():
 class InspectorController(EventDispatcher):
     target_host = StringProperty(INSPECTOR_HOST)
     target_port = NumericProperty(INSPECTOR_PORT)
+    view = ObjectProperty(allownone=True)
     is_connected = BooleanProperty(False)
     is_connecting = BooleanProperty(False)
     error = StringProperty()

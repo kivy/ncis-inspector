@@ -56,4 +56,4 @@ Builder.load_string("""
 
 
 class KivyInspectorView(F.RelativeLayout):
-    pass
+    ICON = "kivy.png"

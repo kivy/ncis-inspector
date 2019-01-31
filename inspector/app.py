@@ -3,12 +3,15 @@ from inspector.widgets.switchcontainer import SwitchContainer
 from kivy.factory import Factory as F
 from kivy.lang import global_idmap, Builder
 from kivy.clock import Clock
-from kivy.properties import DictProperty
+from kivy.properties import DictProperty, ObjectProperty, BooleanProperty
+from functools import partial
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
-#:set NCIS_COLOR_TOPBAR "#03A9F4"
-#:set NCIS_COLOR_LEFTBAR "#01579B"
+#:set NCIS_COLOR_TOPBAR "#0D47A1"
+#:set NCIS_COLOR_LEFTBAR "#0D47A1"
+#:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#64B5F6"
+#:set NCIS_COLOR_TRANSPARENT "#00000000"
 
 #:set NCIS_ICON_CANCEL "\uE800"
 #:set NCIS_ICON_SPINNER "\uE830"
@@ -17,8 +20,21 @@ Builder.load_string("""
 <InspectorIconLabel@Label>:
     font_name: "inspector/data/ncis.ttf"
 
-<InspectorIconButton@Button>:
+<InspectorIconButton@ButtonBehavior+Label>:
     font_name: "inspector/data/ncis.ttf"
+
+<InspectorImageButton@ButtonBehavior+Image>:
+    size_hint_y: None
+    height: self.width
+
+<InspectorLeftbarImageButton>:
+    selected: isinstance(ins.view, root.view)
+    canvas.before:
+        Color:
+            rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if self.selected else NCIS_COLOR_TRANSPARENT)
+        Rectangle:
+            pos: self.x - dp(8), self.y - dp(8)
+            size: self.width + dp(16), self.height + dp(16)
 
 <InspectorConnection@AnchorLayout>:
     disabled: ins.is_connecting
@@ -98,12 +114,6 @@ Builder.load_string("""
             text: "NCIS Inspector"
         InspectorIconButton:
             text: NCIS_ICON_CANCEL
-        Spinner:
-            classes: {x.__name__: x for x in root.views_cls}
-            values: (self.classes).keys()
-            on_text: root.show_view(self.classes[self.text])
-        Button:
-            text: "X"
             on_release: ins.disconnect()
             size_hint_x: None
             width: self.height
@@ -115,6 +125,9 @@ Builder.load_string("""
             cols: 1
             size_hint_x: None
             width: dp(44)
+            id: view_icons
+            padding: dp(8)
+            spacing: dp(16)
             canvas.before:
                 Color:
                     rgba: rgba(NCIS_COLOR_LEFTBAR)
@@ -133,10 +146,16 @@ Builder.load_string("""
 """)
 
 
+class InspectorLeftbarImageButton(F.InspectorImageButton):
+    view = ObjectProperty(allownone=True)
+    selected = BooleanProperty(False)
+
+
 class InspectorViews(F.GridLayout):
     views_cls = DictProperty()
 
     def __init__(self, **kwargs):
+        _ = F.InspectorImageButton()
         super(InspectorViews, self).__init__(**kwargs)
         Clock.schedule_once(self.discover_views)
 
@@ -150,12 +169,24 @@ class InspectorViews(F.GridLayout):
         }
         self.show_view(PythonInspectorView)
 
-    def show_view(self, cls):
+        # icons
+        for view in self.views_cls.keys():
+            icon = "inspector/data/icons/{}".format(view.ICON)
+            btn = F.InspectorLeftbarImageButton(
+                source=icon,
+                view=view,
+                on_release=partial(self.show_view, view)
+            )
+            self.ids.view_icons.add_widget(btn)
+
+    def show_view(self, cls, *largs):
         instance = self.views_cls.get(cls)
         if not instance:
             instance = self.views_cls[cls] = cls()
         self.ids.view_container.clear_widgets()
         self.ids.view_container.add_widget(instance)
+        InspectorController.instance().view = instance
+
 
 class InspectorApplicationRoot(F.SwitchContainer):
     def __init__(self, **kwargs):
