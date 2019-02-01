@@ -47,6 +47,18 @@
       "css": "right-open",
       "code": 59397,
       "src": "entypo"
+    },
+    {
+      "uid": "3838a5aba604532d2dbae5904615ea39",
+      "css": "down",
+      "code": 59398,
+      "src": "mfglabs"
+    },
+    {
+      "uid": "05a2f4c4839012434774cc1ceb4c0f9b",
+      "css": "download-alt",
+      "code": 59399,
+      "src": "elusive"
     }
   ]
 }

@@ -3,8 +3,14 @@ from kivy.properties import (
 from kivy.network.urlrequest import UrlRequest
 from kivy.event import EventDispatcher
 from kivy.lang import global_idmap
+from kivy.clock import Clock
 from itertools import chain
-
+import threading
+import requests
+import traceback
+import time
+import sseclient
+from collections import deque
 from os import listdir, environ
 from os.path import splitext, realpath, join
 from importlib import import_module
@@ -61,6 +67,10 @@ class InspectorController(EventDispatcher):
         return cls._instance
 
     def __init__(self, **kwargs):
+        self._stream_q = deque()
+        self._stream_clock = None
+        self._stream_thread_args = {}
+        self._stream_observers = []
         super(InspectorController, self).__init__(**kwargs)
         if self.target_host and self.target_port:
             self.connect()
@@ -124,13 +134,13 @@ class InspectorController(EventDispatcher):
         return True
 
     def connect(self):
-        self.is_connecting = False
-        self.error = ""
+        self.disconnect()
 
         def callback(status, resp):
             self.is_connecting = False
             if status == "ok":
                 self.is_connected = True
+                self._stream_start()
             else:
                 self.is_connected = False
                 self.error = repr(resp)
@@ -140,3 +150,73 @@ class InspectorController(EventDispatcher):
     def disconnect(self):
         self.is_connected = False
         self.error = ""
+        self._stream_stop()
+
+    def _stream_start(self):
+        self._stream_q = deque()
+        self._stream_thread_args = {
+            "quit": False,
+            "q": self._stream_q
+        }
+        self._stream_clock = Clock.schedule_interval(
+            self._stream_read_queue, 1 / 30.)
+        thread = threading.Thread(
+            target=self._stream_listen,
+            args=(self._stream_thread_args, ))
+        thread.daemon = True
+        thread.start()
+
+    def _stream_stop(self):
+        if self._stream_clock is not None:
+            Clock.unschedule(self._stream_clock)
+            self._stream_clock = None
+        if self._stream_thread_args:
+            self._stream_thread_args["quit"] = True
+
+    def _stream_listen(self, args):
+        while True:
+            if args["quit"]:
+                break
+            try:
+                self._stream_listen_once(args)
+            except Exception as e:
+                traceback.print_exc()
+                # error while connecting to the stream?
+                # retry after
+                time.sleep(2)
+                continue
+
+    def _stream_listen_once(self, args):
+        url = "http://{host}:{port}/_/stream".format(
+            host=self.target_host, port=self.target_port)
+        req = requests.get(url, stream=True)
+        client = sseclient.SSEClient(req.iter_content())
+        q = args["q"]
+        for event in client.events():
+            if args["quit"]:
+                break
+            q.appendleft(event)
+
+    def _stream_read_queue(self, *largs):
+        observers = self._stream_observers
+        while True:
+            try:
+                event = self._stream_q.pop()
+            except IndexError:
+                break
+
+            for observer in observers:
+                ob_events = observer[1]
+                if ob_events is None or event.event in ob_events:
+                    try:
+                        observer[0](event)
+                    except Exception as e:
+                        traceback.print_exc()
+
+    def stream_bind(self, callback, events=None):
+        self._stream_observers.append([callback, events])
+
+    def stream_unbind(self, callback):
+        self._stream_observers = [
+            x for x in self._stream_observers
+            if x[0] is not callback]

@@ -1,11 +1,11 @@
 @font-face {
   font-family: 'ncis';
-  src: url('../font/ncis.eot?25043947');
-  src: url('../font/ncis.eot?25043947#iefix') format('embedded-opentype'),
-       url('../font/ncis.woff2?25043947') format('woff2'),
-       url('../font/ncis.woff?25043947') format('woff'),
-       url('../font/ncis.ttf?25043947') format('truetype'),
-       url('../font/ncis.svg?25043947#ncis') format('svg');
+  src: url('../font/ncis.eot?16930431');
+  src: url('../font/ncis.eot?16930431#iefix') format('embedded-opentype'),
+       url('../font/ncis.woff2?16930431') format('woff2'),
+       url('../font/ncis.woff?16930431') format('woff'),
+       url('../font/ncis.ttf?16930431') format('truetype'),
+       url('../font/ncis.svg?16930431#ncis') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -15,7 +15,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: 'ncis';
-    src: url('../font/ncis.svg?25043947#ncis') format('svg');
+    src: url('../font/ncis.svg?16930431#ncis') format('svg');
   }
 }
 */
@@ -61,4 +61,6 @@
 .icon-eye-off:before { content: '\e803'; } /* '' */
 .icon-down-open:before { content: '\e804'; } /* '' */
 .icon-right-open:before { content: '\e805'; } /* '' */
+.icon-down:before { content: '\e806'; } /* '' */
+.icon-download-alt:before { content: '\e807'; } /* '' */
 .icon-spin1:before { content: '\e830'; } /* '' */

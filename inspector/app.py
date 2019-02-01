@@ -163,11 +163,13 @@ class InspectorViews(F.GridLayout):
         # TODO make it dynamic
         from inspector.views.view_python import PythonInspectorView
         from inspector.views.view_kivy import KivyInspectorView
+        from inspector.views.view_stdio import StdioInspectorView
         self.views_cls = {
             PythonInspectorView: None,
-            KivyInspectorView: None
+            KivyInspectorView: None,
+            StdioInspectorView: None
         }
-        self.show_view(PythonInspectorView)
+        self.show_view(StdioInspectorView)
 
         # icons
         for view in self.views_cls.keys():
