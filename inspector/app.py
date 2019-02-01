@@ -16,6 +16,8 @@ Builder.load_string("""
 #:set NCIS_ICON_CANCEL "\uE800"
 #:set NCIS_ICON_SPINNER "\uE830"
 #:set NCIS_ICON_UNHAPPY "\uE802"
+#:set NCIS_ICON_DOWNARROW "\uE807"
+#:set NCIS_ICON_TRASH "\uE808"
 
 <InspectorIconLabel@Label>:
     font_name: "inspector/data/ncis.ttf"

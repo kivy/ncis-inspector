@@ -26,6 +26,7 @@ Builder.load_string("""
     RecycleView:
         id: rv
         viewclass: "LineStdioInspectorView"
+        scroll_y: 0
         RecycleBoxLayout:
             spacing: dp(4)
             padding: dp(8)
@@ -34,6 +35,34 @@ Builder.load_string("""
             size_hint_y: None
             height: self.minimum_height
             orientation: 'vertical'
+
+    InspectorIconButton:
+        text: NCIS_ICON_TRASH
+        right: [root.right - dp(10), self.width][0]
+        y: root.y + dp(64)
+        size_hint: None, None
+        size: dp(44), dp(44)
+        on_release: root.clear_logs()
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, .2) if self.state == "normal" else rgba(NCIS_COLOR_LEFTBAR)
+            Ellipse:
+                size: self.size
+                pos: self.pos
+
+    InspectorIconButton:
+        text: NCIS_ICON_DOWNARROW
+        right: [root.right - dp(10), self.width][0]
+        y: root.y + dp(10)
+        size_hint: None, None
+        size: dp(44), dp(44)
+        on_release: rv.scroll_y = 0
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, .2) if rv.scroll_y != 0 else rgba(NCIS_COLOR_LEFTBAR)
+            Ellipse:
+                size: self.size
+                pos: self.pos
 """)
 
 class StdioInspectorView(F.RelativeLayout):
@@ -90,3 +119,7 @@ class StdioInspectorView(F.RelativeLayout):
             yield {
                 "text": line[i:i+n]
             }
+
+    def clear_logs(self):
+        self.lines = []
+        self.refresh(force=True)
