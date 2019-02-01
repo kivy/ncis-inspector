@@ -46,12 +46,7 @@ Builder.load_string("""
 
         TabbedPanel:
             do_default_tab: False
-            PythonInfoPanel:
             KivyTreePanel:
-
-            TabbedPanelItem:
-                text: 'file tree'
-                Button
 """)
 
 
