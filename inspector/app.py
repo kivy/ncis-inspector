@@ -5,6 +5,7 @@ from kivy.lang import global_idmap, Builder
 from kivy.clock import Clock
 from kivy.properties import DictProperty, ObjectProperty, BooleanProperty
 from functools import partial
+import os
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
@@ -166,7 +167,9 @@ class InspectorViews(F.GridLayout):
             KivyInspectorView: None,
             StdioInspectorView: None
         }
-        self.show_view(StdioInspectorView)
+
+        default_view = os.environ.get("INSPECTOR_VIEW", "PythonInspectorView")
+        self.show_view(locals().get(default_view))
 
         # icons
         for view in self.views_cls.keys():
