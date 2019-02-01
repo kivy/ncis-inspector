@@ -1,4 +1,8 @@
 
 .icon-cancel:before { content: '\e800'; } /* '' */
+.icon-eye:before { content: '\e801'; } /* '' */
 .icon-emo-unhappy:before { content: '\e802'; } /* '' */
+.icon-eye-off:before { content: '\e803'; } /* '' */
+.icon-down-open:before { content: '\e804'; } /* '' */
+.icon-right-open:before { content: '\e805'; } /* '' */
 .icon-spin1:before { content: '\e830'; } /* '' */

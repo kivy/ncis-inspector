@@ -21,7 +21,6 @@ Builder.load_string("""
             text: 'Modules'
             PythonModulesPanel:
                 on_module_selected: root.inspect_module(args[1])
-
 """)
 
 class PythonInspectorView(F.RelativeLayout):

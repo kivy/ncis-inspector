@@ -67,10 +67,12 @@ class InspectorController(EventDispatcher):
 
     def request(
         self, path, callback=None, force=False, method='GET',
-        params=None
+        params=None, headers=None
     ):
         if not self.is_connected and not force:
             return False
+
+        headers = headers or {}
 
         def handle_success(request, response):
             status = response["status"]
@@ -97,8 +99,10 @@ class InspectorController(EventDispatcher):
                 on_success=handle_success,
                 on_failure=handle_failure,
                 on_error=handle_error,
+                req_headers=headers
             )
         elif method == 'POST':
+            headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
             url = 'http://{host}:{port}{path}'.format(
                 host=self.target_host,
                 port=self.target_port,
@@ -110,6 +114,7 @@ class InspectorController(EventDispatcher):
                 on_failure=handle_failure,
                 on_error=handle_error,
                 req_body=urlencode(params or {}),
+                req_headers=headers
             )
         else:
             raise ValueError(
