@@ -65,6 +65,7 @@ Builder.load_string("""
                 pos: self.pos
 """)
 
+
 class StdioInspectorView(F.RelativeLayout):
     ICON = "logs.png"
     line_character_max = NumericProperty(256)
@@ -72,12 +73,20 @@ class StdioInspectorView(F.RelativeLayout):
     def __init__(self, **kwargs):
         self.rv_data = []
         self.lines = []
+        self.rv_update = False
         self.pipes = {
             "stdout": "",
             "stderr": ""
         }
         super(StdioInspectorView, self).__init__(**kwargs)
         ctl.stream_bind(self.callback, events=["stdout", "stderr"])
+
+    def enter(self):
+        self.rv_update = True
+        self.refresh()
+
+    def leave(self):
+        self.rv_update = False
 
     def callback(self, event):
         evname = event.event
@@ -105,6 +114,8 @@ class StdioInspectorView(F.RelativeLayout):
         self.refresh(force=True)
 
     def refresh(self, force=False):
+        if not self.rv_update:
+            return
         if force:
             rv_data = []
             for line in self.lines:

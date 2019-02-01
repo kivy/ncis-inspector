@@ -8,16 +8,17 @@ from functools import partial
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
-#:set NCIS_COLOR_TOPBAR "#0D47A1"
-#:set NCIS_COLOR_LEFTBAR "#0D47A1"
-#:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#64B5F6"
+#:set NCIS_COLOR_LEFTBAR "#2f333d"
+#:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#373c48"
 #:set NCIS_COLOR_TRANSPARENT "#00000000"
 
 #:set NCIS_ICON_CANCEL "\uE800"
 #:set NCIS_ICON_SPINNER "\uE830"
 #:set NCIS_ICON_UNHAPPY "\uE802"
-#:set NCIS_ICON_DOWNARROW "\uE807"
-#:set NCIS_ICON_TRASH "\uE808"
+#:set NCIS_ICON_DOWNARROW "\uF103"
+#:set NCIS_ICON_TRASH "\uF1F8"
+#:set NCIS_ICON_SETTINGS "\uE807"
+#:set NCIS_ICON_EXIT "\uE806"
 
 <InspectorIconLabel@Label>:
     font_name: "inspector/data/ncis.ttf"
@@ -31,6 +32,7 @@ Builder.load_string("""
 
 <InspectorLeftbarImageButton>:
     selected: isinstance(ins.view, root.view)
+    opacity: 1 if self.selected else 0.5
     canvas.before:
         Color:
             rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if self.selected else NCIS_COLOR_TRANSPARENT)
@@ -98,27 +100,6 @@ Builder.load_string("""
 
 <InspectorViews>:
     cols: 1
-    GridLayout:
-        rows: 1
-        size_hint_y: None
-        height: dp(44)
-        spacing: dp(4)
-        canvas.before:
-            Color:
-                rgba: rgba(NCIS_COLOR_TOPBAR)
-            Rectangle:
-                pos: self.pos
-                size: self.size
-        Widget:
-            size_hint_x: None
-            width: self.height
-        Label:
-            text: "NCIS Inspector"
-        InspectorIconButton:
-            text: NCIS_ICON_CANCEL
-            on_release: ins.disconnect()
-            size_hint_x: None
-            width: self.height
 
     GridLayout:
         rows: 1
@@ -126,16 +107,30 @@ Builder.load_string("""
         GridLayout:
             cols: 1
             size_hint_x: None
-            width: dp(44)
-            id: view_icons
+            width: dp(48)
             padding: dp(8)
-            spacing: dp(16)
             canvas.before:
                 Color:
                     rgba: rgba(NCIS_COLOR_LEFTBAR)
                 Rectangle:
                     pos: self.pos
                     size: self.size
+
+            GridLayout:
+                cols: 1
+                id: view_icons
+                spacing: dp(16)
+
+            GridLayout:
+                cols: 1
+                spacing: dp(16)
+                size_hint_y: None
+                height: self.minimum_height
+                InspectorIconButton:
+                    text: NCIS_ICON_EXIT
+                    on_release: ins.disconnect()
+                    size_hint_y: None
+                    height: self.width
 
         RelativeLayout:
             id: view_container
@@ -187,10 +182,15 @@ class InspectorViews(F.GridLayout):
         instance = self.views_cls.get(cls)
         if not instance:
             instance = self.views_cls[cls] = cls()
-        self.ids.view_container.clear_widgets()
-        self.ids.view_container.add_widget(instance)
+        c = self.ids.view_container
+        if c.children:
+            if hasattr(c.children[0], "leave"):
+                c.children[0].leave()
+        c.clear_widgets()
+        c.add_widget(instance)
         InspectorController.instance().view = instance
-
+        if hasattr(instance, "enter"):
+            instance.enter()
 
 class InspectorApplicationRoot(F.SwitchContainer):
     def __init__(self, **kwargs):

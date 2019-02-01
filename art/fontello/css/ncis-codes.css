@@ -5,7 +5,10 @@
 .icon-eye-off:before { content: '\e803'; } /* '' */
 .icon-down-open:before { content: '\e804'; } /* '' */
 .icon-right-open:before { content: '\e805'; } /* '' */
-.icon-down:before { content: '\e806'; } /* '' */
-.icon-download-alt:before { content: '\e807'; } /* '' */
-.icon-trash-empty:before { content: '\e808'; } /* '' */
+.icon-logout:before { content: '\e806'; } /* '' */
+.icon-cog:before { content: '\e807'; } /* '' */
+.icon-download-alt:before { content: '\e808'; } /* '' */
 .icon-spin1:before { content: '\e830'; } /* '' */
+.icon-angle-double-up:before { content: '\f102'; } /* '' */
+.icon-angle-double-down:before { content: '\f103'; } /* '' */
+.icon-trash:before { content: '\f1f8'; } /* '' */
