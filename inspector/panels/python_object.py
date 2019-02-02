@@ -4,6 +4,7 @@ from kivy.factory import Factory as F
 from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
 from kivy.clock import Clock
 from kivy.lang import Builder
+from kivy.utils import escape_markup
 from inspector.controller import ctl
 from functools import partial
 import json
@@ -28,7 +29,7 @@ Builder.load_string('''
     RecycleBoxLayout:
         spacing: dp(4)
         padding: dp(4)
-        default_size: None, dp(12)
+        default_size: None, dp(18)
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
@@ -45,27 +46,29 @@ class PythonObjectRepr(object):
         self.refs = refs
         self.panel = panel
 
-    def render_full(self):
+    def render_full(self, oneline=False):
         result = []
-        for line in self._render_full(self.o):
+        for line in self._render_full(self.o, oneline):
             result.append(line)
-        return "\n".join(result)
+        joinchar = "" if oneline else "\n"
+        return joinchar.join(result)
 
-    def _render_full(self, o):
-        indent_str = "  "
+    def _render_full(self, o, oneline):
+        indent_str = "" if oneline else "  "
+        commachr = ", " if oneline else ""
         if isinstance(o, (str, int, float, bytes)):
-            yield repr(o)
+            yield escape_markup(repr(o))
 
         elif isinstance(o, (list, tuple)):
-            yield "[" if isinstance(o, list) else "("
+            yield escape_markup("[") if isinstance(o, list) else "("
             for index, entry in enumerate(o):
                 is_last = index == len(o) - 1
-                lines = list(self._render_full(entry))
+                lines = list(self._render_full(entry, oneline))
                 for indexline, line in enumerate(lines):
                     is_last_indexline = indexline == len(lines) - 1
-                    comma = "," if (is_last_indexline and not is_last) else ""
+                    comma = commachr if (is_last_indexline and not is_last) else ""
                     yield indent_str + line + comma
-            yield "]" if isinstance(o, list) else ")"
+            yield escape_markup("]") if isinstance(o, list) else ")"
 
         elif self.is_pyobject(o):
             yield self.convert_pyobject(o)
@@ -75,17 +78,19 @@ class PythonObjectRepr(object):
             items = list(o.items())
             for index, (key, entry) in enumerate(items):
                 is_last = index == len(items) - 1
-                repr_key = list(self._render_full(key))[0]
-                lines = list(self._render_full(entry))
+                repr_key = list(self._render_full(key, oneline))[0]
+                lines = list(self._render_full(entry, oneline))
                 for indexline, line in enumerate(lines):
                     is_last_indexline = indexline == len(lines) - 1
-                    comma = "," if (is_last_indexline and not is_last) else ""
+                    comma = commachr if (is_last_indexline and not is_last) else ""
                     if indexline == 0:
                         yield indent_str + repr_key + ": " + line + comma
                     else:
                         yield indent_str + line + comma
             yield "}"
 
+        elif o is None:
+            yield "[i][color=#909090]None[/color][/i]"
         else:
             yield "<missing repr for {}>".format(type(o))
 
@@ -100,7 +105,7 @@ class PythonObjectRepr(object):
                 pyo["type"], pyo["id"]
             )
             return "[color=#03A9F4][ref={}]{}[/ref][/color]".format(
-                ref, text)
+                ref, escape_markup(text))
         else:
             return "<{} object>".format(pyo["type"])
 
@@ -138,7 +143,7 @@ class PythonObjectPanel(F.RelativeLayout):
         self.refs = {}
         pyr = PythonObjectRepr(obj, self.refs, self)
         if self.oneline:
-            text = pyr.render_full()[:256]
+            text = pyr.render_full(oneline=True)[:256]
         else:
             text = pyr.render_full()
 

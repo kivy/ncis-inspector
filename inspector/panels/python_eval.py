@@ -54,7 +54,6 @@ Builder.load_string('''
             index: 0 if root.eval_type == "eval" else 1
             PythonObjectPanel:
                 obj: root.obj if root.eval_type == "eval" else None
-                # on_ref_pressed: print(args)
             PythonInspectPanel:
                 cmd: root.cmd if root.eval_type == "inspect" else None
 ''')

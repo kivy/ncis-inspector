@@ -9,6 +9,7 @@ from kivy.properties import (
     StringProperty, ObjectProperty, ListProperty, NumericProperty,
     BooleanProperty, DictProperty
 )
+from kivy.utils import escape_markup
 
 from inspector.controller import ctl
 
@@ -18,32 +19,36 @@ Builder.load_string('''
 
     canvas.before:
         Color:
-            rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if root.selected else NCIS_COLOR_TRANSPARENT)
+            rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if root.highlight else (NCIS_COLOR_LEFTBAR if root.selected else NCIS_COLOR_TRANSPARENT))
         Rectangle:
-            pos: self.pos
-            size: self.size
-    Widget:
-        size_hint_x: None
-        width: root.indent * root.depth
+            pos: -dp(2), -dp(2)
+            size: self.width + dp(4), self.height + dp(4)
 
-    InspectorIconButton:
-        text: '\ue804' if not root.closed else '\ue805'
-        size_hint_x: None
-        width: self.height
-        state: 'normal' if root.closed else 'down'
-        disabled: not root.have_children or root.widget_uid == 0
-        opacity: 1 if not self.disabled else 0
+    BoxLayout:
+        x: -self.height + dp(5)
+        Widget:
+            size_hint_x: None
+            width: root.indent * root.depth
 
-        on_release:
-            root.toggle()
+        InspectorIconButton:
+            text: '\ue804' if not root.closed else '\ue805'
+            size_hint_x: None
+            width: self.height
+            state: 'normal' if root.closed else 'down'
+            disabled: not root.have_children or root.widget_uid == 0
+            opacity: 1 if not self.disabled else 0
 
-    Label:
-        text: root.name
-        text_size: self.width, None
-        halign: 'left'
-        markup: True
-        shorten: True
-        shorten_from: 'right'
+            on_release:
+                root.toggle()
+
+        InspectorLabelButton:
+            text: root.name
+            text_size: self.width, None
+            halign: 'left'
+            markup: True
+            shorten: True
+            shorten_from: 'right'
+            on_release: root.manager.dispatch('on_widget_selected', root.widget_uid)
 
 <KivyTreePanel>:
     orientation: 'vertical'
@@ -91,7 +96,7 @@ Builder.load_string('''
 ''')
 
 
-class KivyTreeItem(F.BoxLayout):
+class KivyTreeItem(F.RelativeLayout):
     name = StringProperty()
     indent = NumericProperty()
     depth = NumericProperty()
@@ -101,6 +106,7 @@ class KivyTreeItem(F.BoxLayout):
     widget_uid = NumericProperty()
     have_children = BooleanProperty()
     selected = BooleanProperty(False)
+    highlight = BooleanProperty(False)
 
     def toggle(self):
         self.manager._toggle(self.widget_uid)
@@ -112,14 +118,20 @@ class KivyTreePanel(F.BoxLayout):
     tree = DictProperty()
     items = ListProperty()
     opened = ListProperty()
+    highlight_widget = NumericProperty(None, allownone=True)
+
+    __events__ = ["on_widget_selected"]
 
     def __init__(self, **kwargs):
         self._tree = None
         super().__init__(**kwargs)
-        Clock.schedule_interval(self.fetch_info, 1)
+        Clock.schedule_interval(self.fetch_info, 0)
 
     def fetch_info(self, dt):
         ctl.request('/kivy/tree', self._parse_info)
+
+    def on_highlight_widget(self, *largs):
+        self.refresh()
 
     def apply_filter(self, text_filter):
         self.text_filter = text_filter
@@ -131,6 +143,9 @@ class KivyTreePanel(F.BoxLayout):
         self.items = self._parse_tree(self._tree, 0, [])
 
     def _parse_info(self, status, response):
+        if status != "ok":
+            self.items = []
+            return
         self.tree = response
         self._tree = response['tree']
         if not self.opened:
@@ -148,9 +163,9 @@ class KivyTreePanel(F.BoxLayout):
             if isinstance(node, dict):
                 cls = node['__pyobject__']['type']
                 uid = node['__pyobject__']['id']
-                name = '<{}@{}>'.format(cls, uid)
+                name = '{}'.format(cls)
             else:
-                name = node
+                name = node.capitalize()
                 uid = 0
 
             closed = uid not in self.opened
@@ -163,15 +178,16 @@ class KivyTreePanel(F.BoxLayout):
                 'widget_uid': uid,
                 'depth': depth,
                 'closed': closed,
-                'have_children': bool(children)
+                'have_children': bool(children),
+                'highlight': uid == self.highlight_widget,
             }
 
             if text_filter:
                 node['selected'] = text_filter in name
                 node['name'] = name.replace(
                     text_filter,
-                    '[color=dcb67a]{}[/color]'.format(text_filter)
-                )
+                    '[color=dcb67a]{}[/color]'.format(
+                        escape_markup(text_filter)))
             else:
                 node['selected'] = False
             result.append(node)
@@ -197,3 +213,6 @@ class KivyTreePanel(F.BoxLayout):
         else:
             opened.remove(uid)
         self.refresh()
+
+    def on_widget_selected(self, uid):
+        self.highlight_widget = uid

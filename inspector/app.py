@@ -25,6 +25,8 @@ Builder.load_string("""
 #:set NCIS_ICON_EXIT "\uE806"
 #:set NCIS_ICON_FINDER "\uE80A"
 
+<InspectorLabelButton@ButtonBehavior+Label>:
+
 <InspectorIconLabel@Label>:
     font_name: "inspector/data/ncis.ttf"
 
