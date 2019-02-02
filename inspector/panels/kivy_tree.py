@@ -2,9 +2,7 @@ __all__ = ['KivyTreePanel']
 
 import json
 
-from kivy.uix.tabbedpanel import TabbedPanelItem
-from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
+from kivy.factory import Factory as F
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import (
@@ -14,12 +12,16 @@ from kivy.properties import (
 
 from inspector.controller import ctl
 
-
-KV = '''
-#:import dp kivy.metrics.dp
-
+Builder.load_string('''
 <KivyTreeItem>:
     indent: dp(15)
+
+    canvas.before:
+        Color:
+            rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if root.selected else NCIS_COLOR_TRANSPARENT)
+        Rectangle:
+            pos: self.pos
+            size: self.size
     Widget:
         size_hint_x: None
         width: root.indent * root.depth
@@ -39,36 +41,55 @@ KV = '''
         text: root.name
         text_size: self.width, None
         halign: 'left'
+        markup: True
 
 <KivyTreePanel>:
-    text: 'kivy tree'
-
-    BoxLayout:
-        orientation: 'vertical'
+    orientation: 'vertical'
+    RelativeLayout:
+        size_hint_y: None
+        height: dp(44)
         TextInput:
-            text: root.info
+            id: ti
+            text: root.text_filter
+            on_text: root.apply_filter(self.text)
             multiline: False
-            height: self.minimum_height
+            padding: dp(40), dp(12)
+
+        InspectorIconLabel:
+            text: NCIS_ICON_FINDER
+            color: rgba(NCIS_COLOR_TEXT_PLACEHOLDER)
+            size_hint_x: None
+            width: self.height
+            x: self.x
+            y: dp(2)
+
+        InspectorIconButton:
+            text: NCIS_ICON_CANCEL
+            color: rgba(NCIS_COLOR_TEXT_PLACEHOLDER)
+            size_hint_x: None
+            width: self.height
+            right: [ti.right, self.width][0]
+            opacity: 1 if root.text_filter else 0
+            on_release: root.text_filter = ""
+
+    RecycleView:
+        data: root.items
+        scroll_type: ['bars', 'content']
+        bar_width: dp(10)
+        viewclass: 'KivyTreeItem'
+
+        RecycleBoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-
-        RecycleView:
-            data: root.items
-            scroll_type: ['bars', 'content']
-            bar_width: dp(10)
-            viewclass: 'KivyTreeItem'
-
-            RecycleBoxLayout:
-                orientation: 'vertical'
-                size_hint_y: None
-                height: self.minimum_height
-                padding: dp(4)
-                spacing: dp(4)
-                default_size_hint: 1, None
-                default_size: None, dp(24)
-'''
+            height: self.minimum_height
+            padding: dp(4)
+            spacing: dp(4)
+            default_size_hint: 1, None
+            default_size: None, dp(24)
+''')
 
 
-class KivyTreeItem(BoxLayout):
+class KivyTreeItem(F.BoxLayout):
     name = StringProperty()
     indent = NumericProperty()
     depth = NumericProperty()
@@ -77,40 +98,48 @@ class KivyTreeItem(BoxLayout):
     visible = BooleanProperty()
     widget_uid = NumericProperty()
     have_children = BooleanProperty()
+    selected = BooleanProperty(False)
 
     def toggle(self):
         self.manager._toggle(self.widget_uid)
 
 
-class KivyTreePanel(TabbedPanelItem):
-    info = StringProperty()
+class KivyTreePanel(F.BoxLayout):
+    text_filter = StringProperty()
     app = ObjectProperty()
     tree = DictProperty()
     items = ListProperty()
     opened = ListProperty()
-    flag = BooleanProperty()
 
     def __init__(self, **kwargs):
+        self._tree = None
         super().__init__(**kwargs)
         Clock.schedule_interval(self.fetch_info, 1)
 
     def fetch_info(self, dt):
         ctl.request('/kivy/tree', self._parse_info)
 
+    def apply_filter(self, text_filter):
+        self.text_filter = text_filter
+        self.refresh()
+
+    def refresh(self, *largs):
+        if not self._tree:
+            return
+        self.items = self._parse_tree(self._tree, 0, [])
+
     def _parse_info(self, status, response):
         self.tree = response
-        print(self.opened)
         self._tree = response['tree']
         if not self.opened:
             self.opened.append(0)
-        self.flag = not self.flag
-
-    def on_flag(self, *args):
-        self.items = self._parse_tree(self._tree, 0, [])
+        self.refresh()
 
     def _parse_tree(self, root, depth, result):
         if not root:
             return
+
+        text_filter = self.text_filter
 
         node, children = root
         if node:
@@ -121,7 +150,10 @@ class KivyTreePanel(TabbedPanelItem):
             else:
                 name = node
                 uid = 0
+
             closed = uid not in self.opened
+            if text_filter:
+                closed = False
 
             node = {
                 'name': name,
@@ -131,7 +163,25 @@ class KivyTreePanel(TabbedPanelItem):
                 'closed': closed,
                 'have_children': bool(children)
             }
+
+            if text_filter:
+                node['selected'] = text_filter in name
+                node['name'] = name.replace(
+                    text_filter,
+                    '[color=dcb67a]{}[/color]'.format(text_filter)
+                )
+            else:
+                node['selected'] = False
             result.append(node)
+
+            # if text_filter:
+            #     node["have_children"] = False
+            #     node["closed"] = False
+            #     node["depth"] = 0
+            #     if text_filter in name:
+            #         result.append(node)
+            # else:
+            #     result.append(node)
 
             if not closed:
                 for widget in children:
@@ -144,6 +194,4 @@ class KivyTreePanel(TabbedPanelItem):
             opened.append(uid)
         else:
             opened.remove(uid)
-        self.flag = not self.flag
-
-Builder.load_string(KV)
+        self.refresh()

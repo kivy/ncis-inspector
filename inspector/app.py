@@ -12,6 +12,9 @@ Builder.load_string("""
 #:set NCIS_COLOR_LEFTBAR "#2f333d"
 #:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#373c48"
 #:set NCIS_COLOR_TRANSPARENT "#00000000"
+#:set NCIS_COLOR_BACKGROUND "#21252b"
+#:set NCIS_COLOR_TEXT_PLACEHOLDER "#808080"
+#:set NCIS_COLOR_TEXT_HIGHLIGHT "#dcb67a"
 
 #:set NCIS_ICON_CANCEL "\uE800"
 #:set NCIS_ICON_SPINNER "\uE830"
@@ -20,6 +23,7 @@ Builder.load_string("""
 #:set NCIS_ICON_TRASH "\uF1F8"
 #:set NCIS_ICON_SETTINGS "\uE807"
 #:set NCIS_ICON_EXIT "\uE806"
+#:set NCIS_ICON_FINDER "\uE80A"
 
 <InspectorIconLabel@Label>:
     font_name: "inspector/data/ncis.ttf"
@@ -30,6 +34,14 @@ Builder.load_string("""
 <InspectorImageButton@ButtonBehavior+Image>:
     size_hint_y: None
     height: self.width
+
+<InspectorButton@ButtonBehavior+Label>:
+    canvas.before:
+        Color:
+            rgba: rgba(NCIS_COLOR_LEFTBAR) if root.state == "normal" else rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED)
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
 <InspectorLeftbarImageButton>:
     selected: isinstance(ins.view, root.view)
@@ -139,6 +151,12 @@ Builder.load_string("""
 
 <InspectorApplicationRoot>:
     index: int(ins.is_connected)
+    canvas.before:
+        Color:
+            rgba: rgba(NCIS_COLOR_BACKGROUND)
+        Rectangle:
+            pos: self.pos
+            size: self.size
     InspectorConnection
     InspectorViews
 """)

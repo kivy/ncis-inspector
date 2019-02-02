@@ -9,7 +9,7 @@ Builder.load_string("""
     SplitterGrid:
         size: root.size
         size_hint: 1, 1
-
+        margin: dp(5)
         rows: 1
 
         SplitterGrid:
@@ -44,9 +44,7 @@ Builder.load_string("""
 
             TextInput:
 
-        TabbedPanel:
-            do_default_tab: False
-            KivyTreePanel:
+        KivyTreePanel
 """)
 
 
