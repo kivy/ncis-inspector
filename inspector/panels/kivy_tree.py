@@ -42,6 +42,8 @@ Builder.load_string('''
         text_size: self.width, None
         halign: 'left'
         markup: True
+        shorten: True
+        shorten_from: 'right'
 
 <KivyTreePanel>:
     orientation: 'vertical'
