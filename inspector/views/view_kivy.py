@@ -23,13 +23,6 @@ Builder.load_string("""
                         text: 'test'
 
                 TabbedPanelItem:
-                    text: 'log'
-
-                    TextInput:
-                        text: 'test'
-                        readonly: True
-
-                TabbedPanelItem:
                     text: 'editor'
 
                     TextInput:
