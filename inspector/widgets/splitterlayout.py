@@ -21,8 +21,8 @@ class SplitterGrid(Layout):
     col_ratios = ListProperty()
     row_ratios = ListProperty()
 
-    min_col_width = NumericProperty(50)
-    min_row_height = NumericProperty(50)
+    min_col_width = NumericProperty(40)
+    min_row_height = NumericProperty(40)
 
     orientation = OptionProperty(
         'lr-tb',
@@ -31,6 +31,9 @@ class SplitterGrid(Layout):
             'lr-tb', 'lr-bt', 'rl-tb', 'lr-bt'
         ]
     )
+
+    __events__ = ('on_resize_start', 'on_resize_complete')
+
     def __init__(self, **kwargs):
         super(SplitterGrid, self).__init__(**kwargs)
         self.bind(
@@ -111,6 +114,7 @@ class SplitterGrid(Layout):
                     result = True
                     break
                 y += margin
+        self.dispatch('on_resize_start', touch)
         return result
 
     def on_touch_move(self, touch):
@@ -198,6 +202,7 @@ class SplitterGrid(Layout):
         row = touch.ud.get('{}_row'.format(id(self)))
         if col is not None or row is not None:
             touch.ungrab(self)
+            self.dispatch('on_resize_complete', touch)
             return True
         return super(SplitterGrid, self).on_touch_up(touch)
 
@@ -282,6 +287,13 @@ class SplitterGrid(Layout):
                 if d2 == 'y' else
                 (margin + w.width) * (-1 if 'rl' in orientation else 1)
             )
+
+    def on_resize_start(self, touch):
+        pass
+
+    def on_resize_complete(self, touch):
+        pass
+
 
 EXAMPLE = '''
 BoxLayout:
