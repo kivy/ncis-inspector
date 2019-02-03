@@ -1,6 +1,7 @@
+from kivy.core.window import Window
 from kivy.uix.layout import Layout
 from kivy.properties import (
-    ListProperty, NumericProperty, OptionProperty
+    ListProperty, NumericProperty, OptionProperty, BooleanProperty
 )
 
 from math import ceil
@@ -32,10 +33,13 @@ class SplitterGrid(Layout):
         ]
     )
 
+    override_cursor = BooleanProperty(True)
+
     __events__ = ('on_resize_start', 'on_resize_complete')
 
     def __init__(self, **kwargs):
         super(SplitterGrid, self).__init__(**kwargs)
+        self._resize_count = 0
         self.bind(
             pos=self.do_layout,
             size=self.do_layout,
@@ -50,6 +54,8 @@ class SplitterGrid(Layout):
             rows=self.on_children,
         )
 
+        Window.bind(mouse_pos=self.update_cursor)
+
     def get_rows_cols(self, *args):
         if self.cols:
             cols = float(self.cols)
@@ -63,6 +69,28 @@ class SplitterGrid(Layout):
             return 0, 0
 
         return rows, cols
+
+    def update_cursor(self, win, pos):
+        if not self.override_cursor:
+            return
+
+        if self._resize_count > 0:
+            return
+
+        col_row = self.match_col_row(self.to_widget(*pos))
+        col = 'col' in col_row
+        row = 'row' in col_row
+
+        cursor = (
+            'size_all'
+            if col and row else
+            'size_ns'
+            if row else
+            'size_we'
+            if col else
+            'arrow'
+        )
+        Window.set_system_cursor(cursor)
 
     def on_children(self, *args):
         rows, cols = self.get_rows_cols()
@@ -81,10 +109,17 @@ class SplitterGrid(Layout):
         if super(SplitterGrid, self).on_touch_down(touch):
             return True
 
-        orientation = self.orientation.split('-')
+        result = self.match_col_row(touch.pos)
+        if result:
+            touch.ud['{}_col'.format(id(self))] = result.get('col')
+            touch.ud['{}_row'.format(id(self))] = result.get('row')
+            touch.grab(self)
+            self.dispatch('on_resize_start', touch)
+        return result
 
-        result = False
-        if self.collide_point(*touch.pos):
+    def match_col_row(self, pos):
+        result = {}
+        if self.collide_point(*pos):
             rows, cols = self.get_rows_cols()
             margin = self.margin
             width = self.internal_width
@@ -98,23 +133,18 @@ class SplitterGrid(Layout):
             col_ratios = self.col_ratios
             for i, col in enumerate(col_ratios):
                 x += width * col / sum_col_ratios
-                if x < touch.x < x + margin:
-                    touch.grab(self)
-                    touch.ud['{}_col'.format(id(self))] = i
-                    result = True
+                if x < pos[0] < x + margin:
+                    result['col'] = i
                     break
                 x += margin
 
             row_ratios = self.row_ratios
             for i, row in enumerate(row_ratios):
                 y += height * row / sum_row_ratios
-                if y < touch.y < y + margin:
-                    touch.grab(self)
-                    touch.ud['{}_row'.format(id(self))] = i
-                    result = True
+                if y < pos[1] < y + margin:
+                    result['row'] = i
                     break
                 y += margin
-        self.dispatch('on_resize_start', touch)
         return result
 
     def on_touch_move(self, touch):
@@ -289,10 +319,10 @@ class SplitterGrid(Layout):
             )
 
     def on_resize_start(self, touch):
-        pass
+        self._resize_count += 1
 
     def on_resize_complete(self, touch):
-        pass
+        self._resize_count -= 1
 
 
 EXAMPLE = '''
