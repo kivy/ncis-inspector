@@ -1,6 +1,7 @@
+from ast import literal_eval
 from kivy.factory import Factory as F
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty
+from kivy.properties import NumericProperty, ObjectProperty, ConfigParserProperty
 
 Builder.load_string("""
 #:import _ inspector.widgets.splitterlayout
