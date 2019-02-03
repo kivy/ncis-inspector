@@ -16,7 +16,7 @@ from inspector.controller import ctl
 
 Builder.load_string('''
 <KivyPropertiesItem>:
-    on_release: root.on_property_selected(root.key, root.value)
+    on_release: root.on_property_selected(root.key, root.entry)
     canvas.before:
         Color:
             rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if root.highlight else NCIS_COLOR_TRANSPARENT)
@@ -91,6 +91,7 @@ class KivyPropertiesItem(F.ButtonBehavior, F.BoxLayout):
     value = ObjectProperty(None, allownone=True)
     repr_value = StringProperty(None, allownone=True)
     highlight = BooleanProperty()
+    entry = ObjectProperty(None, allownone=True)
     on_ref_pressed = ObjectProperty(None, allownone=True)
 
 
@@ -148,6 +149,7 @@ class KivyPropertiesPanel(F.BoxLayout):
                 "key": key_txt,
                 "value": value,
                 "repr_value": repr_value,
+                "entry": response[key],
                 "on_ref_pressed": self._on_ref_pressed,
                 "on_property_selected": self._on_property_selected,
                 "highlight": key == self.highlight_key

@@ -2,7 +2,8 @@ from ast import literal_eval
 from kivy.factory import Factory as F
 from kivy.lang import Builder
 from kivy.properties import (
-    NumericProperty, ObjectProperty, ConfigParserProperty, StringProperty)
+    NumericProperty, ObjectProperty, ConfigParserProperty, StringProperty,
+    AliasProperty)
 
 Builder.load_string("""
 #:import _ inspector.widgets.splitterlayout
@@ -29,8 +30,26 @@ Builder.load_string("""
             on_widget_selected: root.widget_selected = args[1]
             on_property_selected: _, root.propertyname, root.obj = args[1:]
 
-        PythonObjectPanel:
-            obj: root.obj
+        GridLayout:
+            cols: 1
+            spacing: dp(4)
+            AnchorLayout:
+                size_hint_y: None
+                height: dp(44)
+                padding: dp(8), dp(4)
+                canvas.before:
+                    Color:
+                        rgba: rgba(NCIS_COLOR_LEFTBAR)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                InspectorLeftLabel:
+                    text: root.propertyname
+                    font_name: "RobotoMono-Regular"
+
+            PythonObjectPanel:
+                obj: (root.obj or {}).get("value")
+                #((root.obj).get("value") if root.obj else None) or None
 """)
 
 def float_list(value):

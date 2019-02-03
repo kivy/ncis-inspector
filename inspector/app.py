@@ -39,7 +39,7 @@ Builder.load_string("""
     height: self.width
 
 <-InspectorLeftLabel@Label>:
-    canvas.before:
+    canvas:
         Color:
             rgba: self.color
         Rectangle:
