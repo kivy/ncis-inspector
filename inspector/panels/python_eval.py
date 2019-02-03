@@ -40,6 +40,14 @@ Builder.load_string('''
                     height: dp(20)
                     y: 0
                     x: dp(12)
+                InspectorIconButton:
+                    text: NCIS_ICON_CANCEL
+                    color: rgba(NCIS_COLOR_TEXT_PLACEHOLDER)
+                    size_hint_x: None
+                    width: self.height
+                    right: [ti.right, self.width][0]
+                    opacity: 1 if root.cmd else 0
+                    on_release: root.cmd = ""
 
             ToggleButton:
                 group: "python-eval-type"
@@ -110,7 +118,7 @@ class PythonEvalPanel(F.RelativeLayout):
         Clock.unschedule(self._on_text_validate_tmp)
         self.cmd = text
         self.refresh()
-        self.focus = True
+        self.focus()
 
     def _on_text_validate_tmp(self, *largs):
         self._on_text_validate(self.tmptext)

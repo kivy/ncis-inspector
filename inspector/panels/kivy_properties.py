@@ -25,7 +25,7 @@ Builder.load_string('''
             size: self.width + dp(4), self.height + dp(4)
 
     InspectorLeftLabel:
-        text: root.key
+        text: root.repr_key
         text_size: self.width, None
         halign: 'left'
         markup: True
@@ -88,6 +88,7 @@ Builder.load_string('''
 
 class KivyPropertiesItem(F.ButtonBehavior, F.BoxLayout):
     key = StringProperty()
+    repr_key = StringProperty()
     value = ObjectProperty(None, allownone=True)
     repr_value = StringProperty(None, allownone=True)
     highlight = BooleanProperty()
@@ -135,9 +136,9 @@ class KivyPropertiesPanel(F.BoxLayout):
         for key in sorted(response.keys()):
             if text_filter and text_filter not in key:
                 continue
-            key_txt = key
+            repr_key = key
             if text_filter:
-                key_txt = key.replace(
+                repr_key = key.replace(
                     text_filter,
                     '[color=dcb67a]{}[/color]'.format(
                         escape_markup(text_filter)))
@@ -146,7 +147,8 @@ class KivyPropertiesPanel(F.BoxLayout):
             repr_value = PythonObjectRepr(value).render_full(
                 oneline=True, noref=True, max=256)
             data.append({
-                "key": key_txt,
+                "key": key,
+                "repr_key": repr_key,
                 "value": value,
                 "repr_value": repr_value,
                 "entry": response[key],

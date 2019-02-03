@@ -1,7 +1,9 @@
 __all__ = ['PythonObjectPanel']
 
 from kivy.factory import Factory as F
-from kivy.properties import StringProperty, ObjectProperty, BooleanProperty
+from kivy.properties import (
+    StringProperty, ObjectProperty, BooleanProperty,
+    NumericProperty)
 from kivy.clock import Clock
 from kivy.lang import Builder
 from inspector.utils import PythonObjectRepr
