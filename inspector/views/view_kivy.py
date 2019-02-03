@@ -1,6 +1,7 @@
 from ast import literal_eval
 from kivy.factory import Factory as F
 from kivy.lang import Builder
+from kivy.app import App
 from kivy.properties import (
     NumericProperty, ObjectProperty, ConfigParserProperty, StringProperty,
     AliasProperty)
@@ -17,9 +18,10 @@ Builder.load_string("""
         margin: dp(5)
         rows: 1
         col_ratios: root.split_ratios
-        on_col_ratios: root.split_ratios = self.col_ratios
 
-        on_resize_complete: app.config.write()
+        on_resize_complete:
+            root.split_ratios = self.col_ratios
+            app.config.write()
 
         KivyTreePanel:
             on_widget_selected: root.widget_selected = args[1]
@@ -65,6 +67,6 @@ class KivyInspectorView(F.RelativeLayout):
     obj = ObjectProperty(None, allownone=True)
     propertyname = StringProperty()
     split_ratios = ConfigParserProperty(
-        [.2, .5, .3], 'kivy', 'view_split', 'app',
+        [.2, .5, .3], 'kivy_view', 'split_ratios', 'app',
         val_type=float_list
     )
