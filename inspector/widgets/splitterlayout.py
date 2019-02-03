@@ -1,11 +1,19 @@
 from kivy.uix.layout import Layout
-from kivy.properties import ListProperty, NumericProperty
+from kivy.properties import (
+    ListProperty, NumericProperty, OptionProperty
+)
+
 from math import ceil
 
 __all__ = ['SplitterGrid']
 
 
 class SplitterGrid(Layout):
+    """A grid where you can manually resize rows and columns using
+    touch, supports all possible filling order (see `orientation`), and
+    constraining the number of cols or rows (the other will be
+    automatically computed).
+    """
     cols = NumericProperty(0)
     rows = NumericProperty(0)
     margin = NumericProperty(10)
@@ -16,6 +24,13 @@ class SplitterGrid(Layout):
     min_col_width = NumericProperty(50)
     min_row_height = NumericProperty(50)
 
+    orientation = OptionProperty(
+        'lr-tb',
+        options=[
+            'tb-lr', 'bt-lr', 'tb-rl', 'bt-lr',
+            'lr-tb', 'lr-bt', 'rl-tb', 'lr-bt'
+        ]
+    )
     def __init__(self, **kwargs):
         super(SplitterGrid, self).__init__(**kwargs)
         self.bind(
@@ -24,7 +39,8 @@ class SplitterGrid(Layout):
             cols=self.do_layout,
             rows=self.do_layout,
             col_ratios=self.do_layout,
-            row_ratios=self.do_layout
+            row_ratios=self.do_layout,
+            orientation=self.do_layout,
         )
         self.bind(
             cols=self.on_children,
@@ -56,11 +72,13 @@ class SplitterGrid(Layout):
         while cols > len(self.col_ratios):
             self.col_ratios.append(1)
         while cols < len(self.col_ratios):
-            self.col.pop()
+            self.col_ratios.pop()
 
     def on_touch_down(self, touch):
         if super(SplitterGrid, self).on_touch_down(touch):
             return True
+
+        orientation = self.orientation.split('-')
 
         result = False
         if self.collide_point(*touch.pos):
@@ -74,7 +92,8 @@ class SplitterGrid(Layout):
             sum_col_ratios = sum(self.col_ratios)
             sum_row_ratios = sum(self.row_ratios)
 
-            for i, col in enumerate(self.col_ratios):
+            col_ratios = self.col_ratios
+            for i, col in enumerate(col_ratios):
                 x += width * col / sum_col_ratios
                 if x < touch.x < x + margin:
                     touch.grab(self)
@@ -83,7 +102,8 @@ class SplitterGrid(Layout):
                     break
                 x += margin
 
-            for i, row in enumerate(self.row_ratios):
+            row_ratios = self.row_ratios
+            for i, row in enumerate(row_ratios):
                 y += height * row / sum_row_ratios
                 if y < touch.y < y + margin:
                     touch.grab(self)
@@ -96,6 +116,7 @@ class SplitterGrid(Layout):
     def on_touch_move(self, touch):
         if touch.grab_current is not self:
             return super(SplitterGrid, self).on_touch_move(touch)
+
         col = touch.ud.get('{}_col'.format(id(self)))
         row = touch.ud.get('{}_row'.format(id(self)))
         width = self.internal_width
@@ -104,19 +125,31 @@ class SplitterGrid(Layout):
         min_col_width = self.min_col_width
         min_row_height = self.min_row_height
 
-        sum_col_ratios = sum(self.col_ratios)
-        sum_row_ratios = sum(self.row_ratios)
+        orientation = self.orientation.split('-')
+
+        col_ratios = self.col_ratios
+        row_ratios = self.row_ratios
+
+        sum_col_ratios = sum(col_ratios)
+        sum_row_ratios = sum(row_ratios)
 
         result = False
 
         if col is not None:
             dx = touch.dx
-            col_pos = self.x + self.margin * col + sum((width * c / sum_col_ratios) for c in self.col_ratios[:col + 1])
+            col_pos = (
+                self.x
+                + self.margin * col
+                + sum(
+                    (width * c / sum_col_ratios)
+                    for c in col_ratios[:col + 1]
+                )
+            )
 
             if (dx < 0 and touch.x < col_pos) or (dx > 0 and touch.x > col_pos):
 
-                width_1 = width * (self.col_ratios[col] / sum_col_ratios) + dx
-                width_2 = width * (self.col_ratios[col + 1] / sum_col_ratios) - dx
+                width_1 = width * (col_ratios[col] / sum_col_ratios) + dx
+                width_2 = width * (col_ratios[col + 1] / sum_col_ratios) - dx
 
                 total_width = width_1 + width_2
                 width_1 = max(min_col_width, width_1)
@@ -126,20 +159,18 @@ class SplitterGrid(Layout):
                 width_1 = total_width - width_2
 
                 # assume the sum of ratios didn't change
-                col_ratios = self.col_ratios[:]
                 col_ratios[col] = sum_col_ratios * width_1 / width
                 col_ratios[col + 1] = sum_col_ratios * width_2 / width
-
                 self.col_ratios = col_ratios
 
             result = True
 
         if row is not None:
             dy = touch.dy
-            row_pos = self.y + self.margin * row + sum((height * r / sum_row_ratios) for r in self.row_ratios[:row + 1])
+            row_pos = self.y + self.margin * row + sum((height * r / sum_row_ratios) for r in row_ratios[:row + 1])
             if (dy < 0 and touch.y < row_pos) or (dy > 0 and touch.y > row_pos):
-                height_1 = height * (self.row_ratios[row] / sum_row_ratios) + dy
-                height_2 = height * (self.row_ratios[row + 1] / sum_row_ratios) - dy
+                height_1 = height * (row_ratios[row] / sum_row_ratios) + dy
+                height_2 = height * (row_ratios[row + 1] / sum_row_ratios) - dy
 
                 total_height = height_1 + height_2
                 height_1 = max(min_row_height, height_1)
@@ -149,7 +180,6 @@ class SplitterGrid(Layout):
                 height_1 = total_height - height_2
 
                 # assume the sum of ratios didn't change
-                row_ratios = self.row_ratios[:]
                 row_ratios[row] = sum_row_ratios * height_1 / height
                 row_ratios[row + 1] = sum_row_ratios * height_2 / height
                 self.row_ratios = row_ratios
@@ -186,8 +216,11 @@ class SplitterGrid(Layout):
         return self.height - sum_margins_rows
 
     def do_layout(self, *args):
+        if not (self.cols or self.rows) or not (self.row_ratios and self.col_ratios):
+            return
+
         i = 0
-        children = self.children
+        children = self.children[::-1]
 
         sum_col_ratios = sum(self.col_ratios)
         sum_row_ratios = sum(self.row_ratios)
@@ -198,29 +231,87 @@ class SplitterGrid(Layout):
 
         margin = self.margin
 
-        for rr in self.row_ratios:
-            x = self.x
-            if not self.col_ratios:
+        orientation = self.orientation.split('-')
+        if 'tb' in orientation:
+            row_ratios = self.row_ratios[::-1]
+        else:
+            row_ratios = self.row_ratios
+
+        if 'rl' in orientation:
+            col_ratios = self.col_ratios[::-1]
+        else:
+            col_ratios = self.col_ratios
+
+        if orientation[0] in ('bt', 'tb'):
+            ratios_d1 = col_ratios
+            ratios_d2 = row_ratios
+            d1, d2 = 'yx'
+
+        elif orientation[0] in ('lr', 'rl'):
+            ratios_d1 = row_ratios
+            ratios_d2 = col_ratios
+            d1, d2 = 'xy'
+
+        initial_pos = {
+            'x': self.x if 'lr' in orientation else self.right,
+            'y': self.y if 'bt' in orientation else self.top
+        }
+        pos = {k: v for k, v in initial_pos.items()}
+        for r1 in ratios_d1:
+            pos[d1] = initial_pos[d1]
+            if not ratios_d2:
                 continue
-            for cr in self.col_ratios:
+            for r2 in ratios_d2:
                 w = children[i]
                 i += 1
-                w.width = width * cr / sum_col_ratios
-                w.height = height * rr / sum_row_ratios
-                w.pos = x, y
-                x += w.width + margin
+                w.width = width * (r2 if d1 == 'x' else r1)  / sum_col_ratios
+                w.height = height * (r1 if d1 == 'x' else r2) / sum_row_ratios
+                w.pos = (
+                    pos['x'] - (w.width if 'rl' in orientation else 0),
+                    pos['y'] - (w.height if 'tb' in orientation else 0)
+                )
+                pos[d1] += (
+                    (margin + w.width) * (-1 if 'rl' in orientation else 1)
+                    if d1 == 'x' else
+                    (margin + w.height) * (-1 if 'tb' in orientation else 1)
+                )
                 if i >= len(children):
                     return
-            y += w.height + margin
+            pos[d2] += (
+                (margin + w.height) * (-1 if 'tb' in orientation else 1)
+                if d2 == 'y' else
+                (margin + w.width) * (-1 if 'rl' in orientation else 1)
+            )
+
+EXAMPLE = '''
+BoxLayout:
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: None
+        height: dp(48)
+        Spinner:
+            id: spinner
+            text: 'lr-tb'
+            values:
+                [
+                'tb-lr', 'bt-lr', 'tb-rl', 'bt-lr',
+                'lr-tb', 'lr-bt', 'rl-tb', 'lr-bt'
+                ]
+    SplitterGrid:
+        id: grid
+        cols: 5
+        orientation: spinner.text or 'lr-tb'
+'''
 
 
 if __name__ == '__main__':
     from kivy.base import runTouchApp
     from kivy.factory import Factory as F
+    from kivy.lang import Builder
 
-    root = SplitterGrid(cols=5)
+    root = Builder.load_string(EXAMPLE)
     for i in range(3):
         for j in range(12):
-            root.add_widget(F.Button(text='{}-{}'.format(i, j)))
+            root.ids.grid.add_widget(F.Button(text='{}-{}'.format(i, j)))
 
     runTouchApp(root)
