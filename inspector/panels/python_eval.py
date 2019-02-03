@@ -2,7 +2,7 @@ __all__ = ['PythonEvalPanel']
 
 from kivy.factory import Factory as F
 from kivy.properties import StringProperty, ObjectProperty
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.lang import Builder
 from inspector.controller import ctl
 from functools import partial
@@ -23,14 +23,23 @@ Builder.load_string('''
             size_hint_y: None
             height: dp(44)
 
-            TextInput:
-                multiline: False
-                text: root.cmd
-                on_text_validate:
-                    root.cmd = self.text
-                    mainthread(lambda *x: setattr(self, "focus", True))()
-                font_size: dp(16)
-                padding: dp(12)
+            RelativeLayout:
+                TextInput:
+                    id: ti
+                    multiline: False
+                    text: root.cmd
+                    on_text: root._on_text(self.text)
+                    on_text_validate: root._on_text_validate(self.text)
+                    font_size: dp(16)
+                    padding: dp(12)
+                InspectorLeftLabel:
+                    text: root.error
+                    color: rgba("#F44336")
+                    font_size: dp(10)
+                    size_hint_y: None
+                    height: dp(20)
+                    y: 0
+                    x: dp(12)
 
             ToggleButton:
                 group: "python-eval-type"
@@ -62,6 +71,7 @@ class PythonEvalPanel(F.RelativeLayout):
     cmd = StringProperty()
     obj = ObjectProperty(allownone=True)
     eval_type = StringProperty("eval")
+    error = StringProperty("")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -70,8 +80,13 @@ class PythonEvalPanel(F.RelativeLayout):
 
     def refresh(self, *largs):
         def callback(status, response):
-            self.obj = response
+            if status == "ok":
+                self.error = ""
+                self.obj = response
+            elif status == "error":
+                self.error = response
 
+        self.error = ""
         ctl.request(
             '/python/eval',
             callback,
@@ -80,3 +95,23 @@ class PythonEvalPanel(F.RelativeLayout):
 
     def on_cmd(self, *largs):
         self.refresh()
+
+    def focus(self):
+        self.ids.ti.focus = True
+
+    def _on_text(self, text):
+        self.error = ""
+        self.tmptext = text
+        Clock.unschedule(self._on_text_validate_tmp)
+        Clock.schedule_once(self._on_text_validate_tmp, 0.3)
+
+    @mainthread
+    def _on_text_validate(self, text):
+        Clock.unschedule(self._on_text_validate_tmp)
+        self.cmd = text
+        self.refresh()
+        self.focus = True
+
+    def _on_text_validate_tmp(self, *largs):
+        self._on_text_validate(self.tmptext)
+
