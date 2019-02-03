@@ -9,6 +9,7 @@ import os
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
+#:import _ inspector.widgets.progressspinner
 #:set NCIS_COLOR_LEFTBAR "#2f333d"
 #:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#373c48"
 #:set NCIS_COLOR_TRANSPARENT "#00000000"

@@ -140,7 +140,7 @@ class KivyPropertiesPanel(F.BoxLayout):
                         escape_markup(text_filter)))
             data.append({
                 "key": key_txt,
-                "value": response[key],
+                "value": response[key]["value"],
                 "on_ref_pressed": self._on_ref_pressed,
                 "on_property_selected": self._on_property_selected,
                 "highlight": key == self.highlight_key

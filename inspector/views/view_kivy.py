@@ -1,7 +1,8 @@
 from ast import literal_eval
 from kivy.factory import Factory as F
 from kivy.lang import Builder
-from kivy.properties import NumericProperty, ObjectProperty, ConfigParserProperty
+from kivy.properties import (
+    NumericProperty, ObjectProperty, ConfigParserProperty, StringProperty)
 
 Builder.load_string("""
 #:import _ inspector.widgets.splitterlayout
@@ -26,7 +27,7 @@ Builder.load_string("""
         KivyPropertiesPanel:
             widget_uid: root.widget_selected
             on_widget_selected: root.widget_selected = args[1]
-            on_value_selected: root.obj = args[1]
+            on_property_selected: root.obj, root.propertyname = args[1], args[2]
 
         PythonObjectPanel:
             obj: root.obj
@@ -43,6 +44,7 @@ class KivyInspectorView(F.RelativeLayout):
     ICON = "kivy.png"
     widget_selected = NumericProperty(None, allownone=True)
     obj = ObjectProperty(None, allownone=True)
+    propertyname = StringProperty()
     split_ratios = ConfigParserProperty(
         [.2, .5, .3], 'kivy', 'view_split', 'app',
         val_type=float_list
