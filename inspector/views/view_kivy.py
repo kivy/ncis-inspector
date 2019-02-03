@@ -27,7 +27,7 @@ Builder.load_string("""
         KivyPropertiesPanel:
             widget_uid: root.widget_selected
             on_widget_selected: root.widget_selected = args[1]
-            on_property_selected: root.obj, root.propertyname = args[1], args[2]
+            on_property_selected: _, root.propertyname, root.obj = args[1:]
 
         PythonObjectPanel:
             obj: root.obj

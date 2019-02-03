@@ -38,6 +38,15 @@ Builder.load_string("""
     size_hint_y: None
     height: self.width
 
+<-InspectorLeftLabel@Label>:
+    canvas.before:
+        Color:
+            rgba: self.color
+        Rectangle:
+            pos: self.x, self.y + (self.height - self.texture_size[1]) / 2.
+            size: self.texture_size
+            texture: self.texture
+
 <InspectorButton@ButtonBehavior+Label>:
     canvas.before:
         Color:
@@ -60,17 +69,21 @@ Builder.load_string("""
     disabled: ins.is_connecting
     GridLayout:
         cols: 1
-        spacing: dp(4)
+        spacing: dp(10)
         size_hint_y: None
         size_hint_max_x: dp(250)
         height: self.minimum_height
         Label:
-            text: "NCIS - Connect to"
+            text: "NCIS"
             size_hint_y: None
-            height: dp(44)
+            height: self.texture_size[1]
+            font_size: dp(48)
+            font_name: "RobotoMono-Regular"
 
         Label:
             text: ins.error
+            size_hint_y: None
+            height: self.texture_size[1]
 
         BoxLayout:
             size_hint_y: None

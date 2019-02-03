@@ -10,11 +10,13 @@ from kivy.properties import (
     BooleanProperty, DictProperty
 )
 from kivy.utils import escape_markup
+from inspector.utils import PythonObjectRepr
 
 from inspector.controller import ctl
 
 Builder.load_string('''
 <KivyPropertiesItem>:
+    on_release: root.on_property_selected(root.key, root.value)
     canvas.before:
         Color:
             rgba: rgba(NCIS_COLOR_LEFTBAR_ICON_SELECTED if root.highlight else NCIS_COLOR_TRANSPARENT)
@@ -22,7 +24,7 @@ Builder.load_string('''
             pos: self.x - dp(2), self.y - dp(2)
             size: self.width + dp(4), self.height + dp(4)
 
-    InspectorLabelButton:
+    InspectorLeftLabel:
         text: root.key
         text_size: self.width, None
         halign: 'left'
@@ -30,13 +32,13 @@ Builder.load_string('''
         shorten: True
         shorten_from: 'right'
         size_hint_x: None
-        width: dp(100)
-        on_release: root.on_property_selected(root.key, root.value)
+        width: dp(150)
 
-    PythonObjectPanel:
-        oneline: True
-        obj: root.value
-        on_ref_pressed: root.on_ref_pressed(args[1])
+    InspectorLeftLabel:
+        text: root.repr_value or ""
+        markup: True
+        font_name: 'RobotoMono-Regular'
+        font_size: dp(13)
 
 <KivyPropertiesPanel>:
     orientation: 'vertical'
@@ -84,9 +86,10 @@ Builder.load_string('''
 ''')
 
 
-class KivyPropertiesItem(F.BoxLayout):
+class KivyPropertiesItem(F.ButtonBehavior, F.BoxLayout):
     key = StringProperty()
     value = ObjectProperty(None, allownone=True)
+    repr_value = StringProperty(None, allownone=True)
     highlight = BooleanProperty()
     on_ref_pressed = ObjectProperty(None, allownone=True)
 
@@ -102,7 +105,6 @@ class KivyPropertiesPanel(F.BoxLayout):
     highlight_key = StringProperty(None, allownone=True)
 
     __events__ = [
-        "on_value_selected",
         "on_widget_selected",
         "on_property_selected"]
 
@@ -138,9 +140,14 @@ class KivyPropertiesPanel(F.BoxLayout):
                     text_filter,
                     '[color=dcb67a]{}[/color]'.format(
                         escape_markup(text_filter)))
+
+            value = response[key]["value"]
+            repr_value = PythonObjectRepr(value).render_full(
+                oneline=True, noref=True, max=256)
             data.append({
                 "key": key_txt,
-                "value": response[key]["value"],
+                "value": value,
+                "repr_value": repr_value,
                 "on_ref_pressed": self._on_ref_pressed,
                 "on_property_selected": self._on_property_selected,
                 "highlight": key == self.highlight_key
@@ -156,14 +163,11 @@ class KivyPropertiesPanel(F.BoxLayout):
 
     def _on_property_selected(self, key, value):
         self.highlight_key = key
-        self.dispatch("on_value_selected", value)
+        self.dispatch("on_property_selected", self.widget_uid, key, value)
         self.refresh()
 
     def on_widget_selected(self, uid):
         pass
 
-    def on_property_selected(self, uid):
-        pass
-
-    def on_value_selected(self, value):
+    def on_property_selected(self, uid, key, value):
         pass
