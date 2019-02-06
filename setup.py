@@ -11,12 +11,12 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="ncis-kivy-inspector",
+    name="ncis-inspector",
     version="0.1",
     description="Client/GUI for NCIS",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/kivy/ncis-kivy-inspector',
+    url='https://github.com/kivy/ncis-inspector',
     author='Kivy Team',
     author_email='kivy-dev@googlegroups.com',
     classifiers=[
@@ -36,7 +36,7 @@ setup(
         ]
     },
     project_urls={
-        'Bug Reports': 'https://github.com/kivy/ncis-kivy/issues',
-        'Source': 'https://github.com/kivy/ncis-kivy/',
+        'Bug Reports': 'https://github.com/kivy/ncis-inspector/issues',
+        'Source': 'https://github.com/kivy/ncis-inspector/',
     },
 )
