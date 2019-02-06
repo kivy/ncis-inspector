@@ -49,5 +49,9 @@ class Application(App):
         return cfg
 
 
-if __name__ == '__main__':
+def main():
     Application().run()
+
+
+if __name__ == '__main__':
+    main()
