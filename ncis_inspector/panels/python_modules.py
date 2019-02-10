@@ -4,7 +4,7 @@ from kivy.factory import Factory as F
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.lang import Builder
-from inspector.controller import ctl
+from ncis_inspector.controller import ctl
 from functools import partial
 
 

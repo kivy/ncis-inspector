@@ -1,5 +1,5 @@
-from inspector.controller import InspectorController
-from inspector.widgets.switchcontainer import SwitchContainer
+from ncis_inspector.controller import InspectorController
+from ncis_inspector.widgets.switchcontainer import SwitchContainer
 from kivy.factory import Factory as F
 from kivy.lang import global_idmap, Builder
 from kivy.clock import Clock
@@ -9,7 +9,7 @@ import os
 
 Builder.load_string("""
 #:import rgba kivy.utils.get_color_from_hex
-#:import _ inspector.widgets.progressspinner
+#:import _ ncis_inspector.widgets.progressspinner
 #:set NCIS_COLOR_LEFTBAR "#2f333d"
 #:set NCIS_COLOR_LEFTBAR_ICON_SELECTED "#373c48"
 #:set NCIS_COLOR_TRANSPARENT "#00000000"
@@ -29,10 +29,10 @@ Builder.load_string("""
 <InspectorLabelButton@ButtonBehavior+Label>:
 
 <InspectorIconLabel@Label>:
-    font_name: "inspector/data/ncis.ttf"
+    font_name: "data/ncis.ttf"
 
 <InspectorIconButton@ButtonBehavior+Label>:
-    font_name: "inspector/data/ncis.ttf"
+    font_name: "data/ncis.ttf"
 
 <InspectorImageButton@ButtonBehavior+Image>:
     size_hint_y: None
@@ -193,9 +193,9 @@ class InspectorViews(F.GridLayout):
 
     def discover_views(self, *largs):
         # TODO make it dynamic
-        from inspector.views.view_python import PythonInspectorView
-        from inspector.views.view_kivy import KivyInspectorView
-        from inspector.views.view_stdio import StdioInspectorView
+        from ncis_inspector.views.view_python import PythonInspectorView
+        from ncis_inspector.views.view_kivy import KivyInspectorView
+        from ncis_inspector.views.view_stdio import StdioInspectorView
         self.views_cls = {
             PythonInspectorView: None,
             KivyInspectorView: None,
@@ -207,7 +207,7 @@ class InspectorViews(F.GridLayout):
 
         # icons
         for view in self.views_cls.keys():
-            icon = "inspector/data/icons/{}".format(view.ICON)
+            icon = "data/icons/{}".format(view.ICON)
             btn = F.InspectorLeftbarImageButton(
                 source=icon,
                 view=view,

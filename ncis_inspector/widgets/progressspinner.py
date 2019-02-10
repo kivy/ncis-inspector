@@ -25,7 +25,7 @@ Builder.load_string("""
         PopMatrix
 
     Label:
-        font_name: "inspector/data/fonts/ncis.ttf"
+        font_name: "data/ncis.ttf"
         text: root.symbol
         size: self.texture_size
         center: (root.adjusted_center, self.size)[0]

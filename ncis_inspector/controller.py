@@ -22,14 +22,14 @@ INSPECTOR_PORT = int(environ.get("INSPECTOR_PORT", 8765))
 ctl = None
 
 def discover_classes():
-    import inspector
-    import inspector.views
-    import inspector.widgets
+    import ncis_inspector
+    import ncis_inspector.views
+    import ncis_inspector.widgets
 
-    rootdir = realpath(inspector.__path__._path[0])
-    dirs = inspector.__path__._path
-    dirs += inspector.views.__path__._path
-    dirs += inspector.widgets.__path__._path
+    rootdir = realpath(ncis_inspector.__path__._path[0])
+    dirs = ncis_inspector.__path__._path
+    dirs += ncis_inspector.views.__path__._path
+    dirs += ncis_inspector.widgets.__path__._path
 
     for directory in dirs:
         for filename in listdir(directory):
@@ -39,11 +39,11 @@ def discover_classes():
             d = realpath(directory).replace(rootdir, "")
             if d[1:]:
                 # handle submodules (inspector.X.Y)
-                d = "inspector." + d[1:]
+                d = "ncis_inspector." + d[1:]
                 modname = d + "." + filename
             else:
                 # handle root modules (inspector.X)
-                modname = "inspector." + filename
+                modname = "ncis_inspector." + filename
             mod = import_module(modname, package=modname)
             symbols = getattr(mod, "__all__", [])
             for symbol in symbols:

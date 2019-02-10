@@ -2,9 +2,9 @@ from kivy.factory import Factory as F
 from kivy.lang import Builder
 
 Builder.load_string("""
-#:import _ inspector.widgets.splitterlayout
-#:import _ inspector.panels.python_modules
-#:import _ inspector.panels.python_eval
+#:import _ ncis_inspector.widgets.splitterlayout
+#:import _ ncis_inspector.panels.python_modules
+#:import _ ncis_inspector.panels.python_eval
 
 <PythonInspectorView>:
     PythonEvalPanel:

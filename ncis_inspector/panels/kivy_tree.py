@@ -10,8 +10,7 @@ from kivy.properties import (
     BooleanProperty, DictProperty
 )
 from kivy.utils import escape_markup
-
-from inspector.controller import ctl
+from ncis_inspector.controller import ctl
 
 Builder.load_string('''
 <KivyTreeItem>:

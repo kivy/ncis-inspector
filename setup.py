@@ -32,7 +32,7 @@ setup(
     install_requires=['requests', 'sseclient-py', 'kaki'],
     entry_points={
         'console_scripts': [
-            'inspector=inspector.standalone:main'
+            'inspector=ncis_inspector.standalone:main'
         ]
     },
     project_urls={

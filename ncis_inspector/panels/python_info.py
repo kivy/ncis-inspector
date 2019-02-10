@@ -4,7 +4,7 @@ from kivy.uix.tabbedpanel import TabbedPanelItem
 from kivy.properties import StringProperty, ObjectProperty
 from kivy.clock import Clock
 from kivy.lang import Builder
-from inspector.controller import ctl
+from ncis_inspector.controller import ctl
 import json
 
 

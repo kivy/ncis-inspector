@@ -1,30 +1,43 @@
 from os.path import exists, dirname
-from os import makedirs
-
-from kaki.app import App
+from os import makedirs, environ
 from kivy.factory import Factory as F
 from kivy.properties import StringProperty
-from inspector.controller import discover_classes
+from kivy.resources import resource_add_path
+from ncis_inspector.controller import discover_classes
+
+try:
+    from kaki.app import App
+    IS_KAKI_APP = True
+except ImportError:
+    IS_KAKI_APP = False
+    if environ.get("DEBUG"):
+        print("Kaki is missing, use Kivy app, but reloading will be missed")
 
 
 class Application(App):
     CLASSES = {
-        "InspectorApplicationRoot": "inspector.app",
-        "KivyInspectorView": "inspector.views.view_kivy"
+        "InspectorApplicationRoot": "ncis_inspector.app",
+        "KivyInspectorView": "ncis_inspector.views.view_kivy"
     }
     # CLASSES = dict(discover_classes())  # Doesn't work cause self deps
 
     AUTORELOADER_PATHS = [
-        ('inspector', {'recursive': True}),
+        ('ncis_inspector', {'recursive': True}),
     ]
 
     name = StringProperty("NCIS-Dash")
 
-    def build_app(self):
-        self.load_config()
-        return F.InspectorApplicationRoot()
+    if IS_KAKI_APP:
+        def build_app(self):
+            self.load_config()
+            return F.InspectorApplicationRoot()
+    else:
+        def build(self):
+            self.load_config()
+            return F.InspectorApplicationRoot()
 
     def load_config(self):
+        resource_add_path(dirname(__file__))
         config = super(Application, self).load_config()
         if not config.filename:
             config.filename = self.get_application_config()

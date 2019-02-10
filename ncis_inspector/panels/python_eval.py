@@ -4,13 +4,13 @@ from kivy.factory import Factory as F
 from kivy.properties import StringProperty, ObjectProperty, ListProperty, NumericProperty
 from kivy.clock import Clock, mainthread
 from kivy.lang import Builder
-from inspector.controller import ctl
+from ncis_inspector.controller import ctl
 from functools import partial
 
 
 Builder.load_string('''
-#:import _ inspector.panels.python_object
-#:import _ inspector.panels.python_inspect
+#:import _ ncis_inspector.panels.python_object
+#:import _ ncis_inspector.panels.python_inspect
 #:import mainthread kivy.clock.mainthread
 <PythonEvalPanel>:
     GridLayout:

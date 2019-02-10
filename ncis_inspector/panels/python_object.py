@@ -6,8 +6,8 @@ from kivy.properties import (
     NumericProperty)
 from kivy.clock import Clock
 from kivy.lang import Builder
-from inspector.utils import PythonObjectRepr
-from inspector.controller import ctl
+from ncis_inspector.utils import PythonObjectRepr
+from ncis_inspector.controller import ctl
 from functools import partial
 import json
 

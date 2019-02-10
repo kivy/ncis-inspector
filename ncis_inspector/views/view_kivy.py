@@ -7,10 +7,10 @@ from kivy.properties import (
     AliasProperty)
 
 Builder.load_string("""
-#:import _ inspector.widgets.splitterlayout
-#:import _ inspector.panels.python_info
-#:import _ inspector.panels.kivy_tree
-#:import _ inspector.panels.kivy_properties
+#:import _ ncis_inspector.widgets.splitterlayout
+#:import _ ncis_inspector.panels.python_info
+#:import _ ncis_inspector.panels.kivy_tree
+#:import _ ncis_inspector.panels.kivy_properties
 <KivyInspectorView>:
     SplitterGrid:
         size: root.size
