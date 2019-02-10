@@ -81,16 +81,17 @@ class HistoryTextInput(F.TextInput):
     history_index = NumericProperty(0)
 
     def do_cursor_movement(self, action, control=False, alt=False):
-        if action == 'cursor_up':
-            self.history_index = max(0, self.history_index - 1)
-            self.text = self.history[self.history_index]
-        elif action == 'cursor_down':
-            self.history_index = min(self.history_index + 1, len(self.history) - 1)
-            self.text = self.history[self.history_index]
-        else:
-            super().do_cursor_movement(
-                self, action, control=control, alt=alt
-            )
+        if self.history:
+            if action == 'cursor_up':
+                self.history_index = max(0, self.history_index - 1)
+                self.text = self.history[self.history_index]
+                return True
+            elif action == 'cursor_down':
+                self.history_index = min(self.history_index + 1, len(self.history) - 1)
+                self.text = self.history[self.history_index]
+                return True
+        return super().do_cursor_movement(
+            action, control=control, alt=alt)
 
     def on_text_validate(self):
         if not self.history or self.history[-1] != self.text:
